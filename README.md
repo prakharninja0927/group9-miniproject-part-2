@@ -1,6 +1,6 @@
 # group9-miniproject-part-2
 
-## Loan Approval Classification Using Neural Netwrok and Streamlit
+## Loan Approval Classification Using Neural Netwrok and Streamlit ["streamlit- link"](https://group9-miniproject-part-2-u0cmy79oacn.streamlit.app/)
 
 1. The necessary libraries are imported: `streamlit`, `pandas`, `tensorflow`, `matplotlib.pyplot`, `train_test_split` from `sklearn.model_selection`, `MinMaxScaler` and `LabelEncoder` from `sklearn.preprocessing`, `os`, and `load_model` from `tensorflow.keras.models`.
 
