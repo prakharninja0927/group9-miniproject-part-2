@@ -166,9 +166,10 @@ def main():
         # st.dataframe(input_data.dtypes)
         df = data.drop(columns=['Loan_ID','Loan_Status'])
 
-        df2 = df.append(new_row,ignore_index = True)
+        # Add the new row to the DataFrame at a specific index
+        df.loc[len(df)] = new_row
 
-        in_data = preprocessed_input_data(df2)
+        in_data = preprocessed_input_data(df)
 
         # Make loan approval prediction
         prediction = model.predict(in_data.tail(1))
