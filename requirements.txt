@@ -3,4 +3,3 @@ pandas
 tensorflow
 matplotlib
 scikit-learn
-os
