@@ -49,6 +49,22 @@ def preprocess_data(data):
     
     return X, y
 
+# Build and train the neural network model
+def build_model(X_train, y_train):
+    model = tf.keras.Sequential([
+    tf.keras.layers.Dense(128, activation='relu', input_shape=(11,)),
+    tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dense(32, activation='relu'),
+    tf.keras.layers.Dense(16, activation='relu'),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+    ])
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.00001)
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+    model.fit(X_train, y_train, epochs=10, batch_size=16)
+
+    return model
+
 # Define the Streamlit app
 def main():
     st.header("Loan Approval Prediction")
@@ -64,6 +80,30 @@ def main():
 
     # Split into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+    # Load Model or Train the model
+    st.subheader("Train the Model")
+
+    # Specify the file name for saving the model
+    model_filename = "loan_model.h5"
+
+    # Check if the file already exists
+    if os.path.exists(model_filename):
+        # Load the existing model
+        model = load_model(model_filename)
+        print("Existing model loaded.")
+    else:
+        # Train and save the model
+        model = build_model(X_train, y_train)
+        model.save(model_filename)
+        print("New model trained and saved.")
+
+    # Evaluate the model
+    st.subheader("Evaluate the Model")
+    loss, accuracy = model.evaluate(X_test, y_test)
+    st.write("Loss:", loss)
+    st.write("Accuracy:", accuracy)
+
 
 
 
