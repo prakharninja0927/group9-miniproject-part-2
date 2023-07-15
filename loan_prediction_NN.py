@@ -12,6 +12,33 @@ def load_data(num_samples):
     loan_data  = pd.read_csv("https://raw.githubusercontent.com/prakharninja0927/Loan-Approval-Classification/main/Data/Training%20Dataset.csv" )
     return loan_data
 
+def preprocessed_input_data(data):
+    ### Applying Label Encoding to categorical features for better result
+     ### Applying Label Encoding to categorical features for better result
+
+    # Filling null values with mode() of that particular features
+    data["Gender"].fillna(value=data['Gender'].mode()[0],inplace=True)
+    data["Married"].fillna(value=data['Married'].mode()[0],inplace=True)
+    data["Dependents"].fillna(value=data['Dependents'].mode()[0],inplace=True)
+    data["Self_Employed"].fillna(value=data['Self_Employed'].mode()[0],inplace=True)
+    data["LoanAmount"].fillna(value=data['LoanAmount'].mode()[0],inplace=True)
+    data["Loan_Amount_Term"].fillna(value=data['Loan_Amount_Term'].mode()[0],inplace=True)
+    data["Credit_History"].fillna(value=data['Credit_History'].mode()[0],inplace=True)
+
+    label_encoder = LabelEncoder()
+
+    data['Property_Area']= label_encoder.fit_transform(data['Property_Area']) 
+    data['Gender']= label_encoder.fit_transform(data['Gender'])
+    data['Married']= label_encoder.fit_transform(data['Married'])
+    data['Education']= label_encoder.fit_transform(data['Education']) 
+    data['Self_Employed']= label_encoder.fit_transform(data['Self_Employed'])
+
+    def clean_dep(x):  
+        return x[0]
+    data['Dependents'] = data['Dependents'].astype(str).apply(clean_dep)
+
+
+    return data.astype('float32')
 
 # Preprocess the data
 def preprocess_data(data):
@@ -104,7 +131,58 @@ def main():
     st.write("Loss:", loss)
     st.write("Accuracy:", accuracy)
 
+    # Make predictions
+    st.subheader("Make Predictions")
+    gender = st.selectbox("Select Gender",['Male','Female'])
+    married = st.selectbox("Are you Married?",['Yes','No'])
+    dependents = st.slider("Number of Dependents",min_value=0, max_value=10, step=1)
+    education = st.radio('Education Level',['Graduate','Not Graduate'], index=1)
+    self_employed = st.radio('Self Employed?',['Yes','No'])
+    applicant_income = st.number_input('Enter your Income')
+    coapplicant_income = st.number_input('Enter Co-applicantIncome Income')
+    loan_amount = st.number_input("Enter Loan Amount")
+    loan_amount_term = st.number_input("Enter Loan Term in Days")
+    credit_history = st.selectbox("Credit History", [0, 1])
+    property_area = st.selectbox("Property Area", ['Urban', 'Rural', 'Semiurban'])
 
+
+
+    # st.write(prediction)
+    if st.button('Predict'):
+        
+        new_row = {
+        'Gender': gender,
+        'Married': married,
+        'Dependents': str(int(dependents)),
+        'Education': education,
+        'Self_Employed': self_employed,
+        'ApplicantIncome': float(applicant_income),
+        'CoapplicantIncome': float(coapplicant_income),
+        'LoanAmount': float(loan_amount),
+        'Loan_Amount_Term': int(loan_amount_term),
+        'Credit_History': float(credit_history),
+        'Property_Area': property_area
+         }
+        # st.dataframe(input_data.dtypes)
+        df = data.drop(columns=['Loan_ID','Loan_Status'])
+
+        df2 = df.append(new_row,ignore_index = True)
+
+        in_data = preprocessed_input_data(df2)
+
+        # Make loan approval prediction
+        prediction = model.predict(in_data.tail(1))
+
+        if prediction > 0.5:
+            st.markdown('<p style="color:green;font-size:30px;">Loan Approved</p>', unsafe_allow_html=True)
+        else:
+            st.markdown('<p style="color:Red;font-size:30px;"><b>Loan Rejected</b></p>', unsafe_allow_html=True)
+
+        prediction=0
+    # Display the model summary using Streamlit
+    st.write('## Model Summary')
+    with st.expander("Click here to see the model summary"):
+        model.summary(print_fn=st.write)
 
 
 if __name__ == '__main__':
